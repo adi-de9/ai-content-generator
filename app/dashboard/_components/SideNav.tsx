@@ -7,6 +7,7 @@ import {
   Settings2,
   ReceiptIndianRupee,
   LucideIcon,
+  MailCheck,
 } from "lucide-react";
 
 import Image from "next/image";
@@ -36,6 +37,11 @@ function SideNav(): JSX.Element {
       text: "Home",
       icon: Home,
     },
+    //     {
+    //   link: "/dashboard/emailer",
+    //   text: "Emailer",
+    //   icon: MailCheck,
+    // },
     {
       link: "/dashboard/history",
       text: "History",

@@ -283,11 +283,11 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
                       placeholder={`Enter ${field.label.toLowerCase() || "text"}...`}
                       rows={4}
                       disabled
-                      className="bg-slate-50"
+                      className="bg-slate-50  border border-gray-700"
                     />
                   ) : field.field === "select" ? (
                     <Select disabled>
-                      <SelectTrigger className="bg-slate-50">
+                      <SelectTrigger className="bg-slate-50  border border-gray-700 ">
                         <SelectValue placeholder="Select an option" />
                       </SelectTrigger>
                     </Select>
@@ -295,7 +295,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
                     <Input
                       placeholder={`Enter ${field.label.toLowerCase() || "text"}...`}
                       disabled
-                      className="bg-slate-50"
+                      className="bg-slate-50 border-2 border-gray-700"
                     />
                   )}
                 </div>
@@ -332,7 +332,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
               placeholder="e.g., AI Blog Posts"
               value={formData.name}
               onChange={(e) => handleInputChange("name", e.target.value)}
-              className={errors.name ? "border-red-500" : ""}
+              className={errors.name ? "border-red-500" : "border border-gray-700"}
             />
             {errors.name && (
               <p className="text-sm text-red-600">{errors.name}</p>
@@ -346,7 +346,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
               placeholder="ai-blog-posts"
               value={formData.slug}
               onChange={(e) => handleInputChange("slug", e.target.value)}
-              className={errors.slug ? "border-red-500" : ""}
+              className={errors.slug ? "border-red-500" : "border border-gray-700"}
             />
             <p className="text-xs text-slate-500">
               Auto-generated from name, but you can edit it
@@ -364,7 +364,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
               value={formData.description}
               onChange={(e) => handleInputChange("description", e.target.value)}
               rows={3}
-              className={errors.description ? "border-red-500" : ""}
+              className={errors.description ? "border-red-500" : "border border-gray-700"}
             />
             {errors.description && (
               <p className="text-sm text-red-600">{errors.description}</p>
@@ -379,7 +379,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
             >
               <SelectTrigger
                 id="category"
-                className={errors.category ? "border-red-500" : ""}
+                className={errors.category ? "border-red-500" : "border border-gray-700"}
               >
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -395,7 +395,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
               <p className="text-sm text-red-600">{errors.category}</p>
             )}
           </div>
-
+          {/* add Icon */}
           <ImagePreview
             formData={formData}
             handleInputChange={handleInputChange}
@@ -410,7 +410,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
               value={formData.aiPrompt}
               onChange={(e) => handleInputChange("aiPrompt", e.target.value)}
               rows={4}
-              className={errors.aiPrompt ? "border-red-500" : ""}
+              className={errors.aiPrompt ? "border-red-500" : "border border-gray-700"}
             />
             <p className="text-xs text-slate-500">
               This prompt will be sent to the AI. You can reference form fields
@@ -429,7 +429,8 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
                 onClick={addFormField}
                 size="sm"
                 variant="outline"
-                className="gap-1"
+            
+                className= "gap-1 border border-gray-300 hover:border-gray-600"
               >
                 <Plus className="h-4 w-4" />
                 Add Field
@@ -471,7 +472,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
                         handleFormFieldChange(index, "label", e.target.value)
                       }
                       className={
-                        errors[`form_${index}_label`] ? "border-red-500" : ""
+                        errors[`form_${index}_label`] ? "border-red-500" :"border border-gray-700"
                       }
                     />
                     {errors[`form_${index}_label`] && (
@@ -488,8 +489,9 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
                       onValueChange={(value) =>
                         handleFormFieldChange(index, "field", value)
                       }
+                      
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border border-gray-700">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -511,7 +513,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
                         handleFormFieldChange(index, "name", e.target.value)
                       }
                       className={
-                        errors[`form_${index}_name`] ? "border-red-500" : ""
+                        errors[`form_${index}_name`] ? "border-red-500" : "border border-gray-700"
                       }
                     />
                     {errors[`form_${index}_name`] && (
@@ -563,7 +565,7 @@ function NewTemplate({ onClose }: { onClose: () => boolean }) {
               onClick={onClose}
               variant="outline"
               size="lg"
-              className="sm:w-auto"
+              className="sm:w-auto border border-gray-500"
             >
               Cancel
             </Button>

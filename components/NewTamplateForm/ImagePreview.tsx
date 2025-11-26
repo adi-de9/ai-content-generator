@@ -58,13 +58,13 @@ function ImagePreview({ formData, handleInputChange, errors }: ImagePreviewProps
                 placeholder="https://cdn-icons-png.flaticon.com/128/3135/3135715.png"
                 value={formData.icon}
                 onChange={(e) => handleInputChange("icon", e.target.value)}
-                className={errors.icon ? "border-red-500" : ""}
+                className={errors.icon ? "border-red-500" : "border border-gray-700 "}
             />
             <p className="text-xs text-slate-500">Provide a URL or upload an image below:</p>
 
             {/* Upload Button */}
-            <div className="flex items-center gap-2">
-                <Input type="file" accept="image/*" onChange={handleFileUpload} />
+            <div className="border border-gray-400 flex items-center gap-2">
+                <Input type="file" accept="image/*" onChange={handleFileUpload}  />
                 {uploading && <p className="text-xs text-blue-600">Uploading...</p>}
             </div>
 

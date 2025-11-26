@@ -4,6 +4,7 @@ import { Sparkles, ArrowRight, Play, Wand2, Rocket } from "lucide-react";
 import { templates, features } from "@/utils/landingPageConstant";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
+import Image from "next/image";
 
 export default function AwesomeLandingPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -117,10 +118,10 @@ export default function AwesomeLandingPage() {
             </div>
 
             <h1 className="mb-8 text-6xl font-black leading-tight md:text-8xl">
-              <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text pr-2 text-transparent">
                 Create
               </span>
-              <br />
+              {/* <br /> */}
               <span className="animate-pulse bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
                 Mind-Blowing
               </span>
@@ -154,24 +155,19 @@ export default function AwesomeLandingPage() {
                 <Play className="h-5 w-5 text-purple-400" />
                 <span>Watch Demo</span>
               </Link>
+
+            
             </div>
 
-            {/* Stats */}
-            <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-3">
-              {[
-                { number: "1M+", label: "Content Pieces Generated" },
-                { number: "99.9%", label: "User Satisfaction Rate" },
-                { number: "3.2s", label: "Average Generation Time" },
-              ].map((stat, i) => (
-                <div key={i} className="text-center">
-                  <div className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
-                    {stat.number}
-                  </div>
-                  <div className="mt-2 text-gray-400">{stat.label}</div>
-                </div>
-              ))}
-            </div>
+          
           </div>
+        <Image
+          src={"/dashboard.png"}
+          alt="banner-image"
+          className="z-10 mt-10 rounded-2xl border border-cyan-800/20 shadow-xl md:shadow-2xl"
+          width={1200}
+          height={598}
+        />
         </div>
 
         {/* Floating Elements */}

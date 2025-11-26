@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
 import React, { useEffect, useMemo } from "react";
-import { Loader } from "lucide-react";
 
 const UsageTrack: React.FC = () => {
   const { user } = useUser();
@@ -36,7 +35,7 @@ const UsageTrack: React.FC = () => {
     );
   }, [data]);
 
-  const currentCredit = getTotalUsage;
+  const currentCredit = getTotalUsage || 0;
   const maxCredit = useMemo(
     () =>
       userSubscriptionDetails && userSubscriptionDetails[0]?.active
@@ -54,14 +53,6 @@ const UsageTrack: React.FC = () => {
     return <div>Error: {error}</div>;
   }
 
-  if (loading) {
-    return (
-      <div className="flex h-10 items-center justify-center">
-        <Loader className="animate-spin" />
-      </div>
-    );
-  }
-
   return (
     <div className="mx-4 mb-6 mt-auto">
       <div className="color rounded-lg">
@@ -70,7 +61,7 @@ const UsageTrack: React.FC = () => {
           <div className="mt-4 h-2 w-full rounded-full bg-pink-400">
             <div
               className="h-2 rounded-full bg-white"
-              style={{ width: `${creditPercentage || ""}%`, maxWidth: "100%" }}
+              style={{ width: `${creditPercentage || 0}%`, maxWidth: "100%" }}
             ></div>
           </div>
           <div className="mt-2 line-clamp-1 flex gap-1 text-sm font-light text-white">
