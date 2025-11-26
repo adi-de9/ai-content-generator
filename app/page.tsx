@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Sparkles, ArrowRight, Play, Wand2, Rocket } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Sparkles, ArrowRight, Play, Wand2, Rocket, X } from "lucide-react";
 import { templates, features } from "@/utils/landingPageConstant";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
@@ -10,15 +10,23 @@ export default function AwesomeLandingPage() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
-  const [dots, setDots] = useState<
-    { left: string; top: string; delay: string; duration: string }[]
-  >([]);
+  const [isVideoOpen, setIsVideoOpen] = useState(false);
   const { isSignedIn } = useAuth();
+
+  // YouTube video ID - 9:16 vertical video
+  const youtubeVideoId = "l4GRpuxfNnk";
 
   useEffect(() => {
     setIsVisible(true);
-    const handleMouseMove = (e: any) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+
+    // Throttle mouse tracking to reduce re-renders
+    let timeoutId: NodeJS.Timeout;
+    const handleMouseMove = (e: MouseEvent) => {
+      if (timeoutId) return;
+      timeoutId = setTimeout(() => {
+        setMousePosition({ x: e.clientX, y: e.clientY });
+        timeoutId = null as any;
+      }, 50); // Update every 50ms max
     };
     window.addEventListener("mousemove", handleMouseMove);
 
@@ -30,17 +38,24 @@ export default function AwesomeLandingPage() {
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(interval);
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
+  // Close modal on ESC key press
   useEffect(() => {
-    const generated = Array.from({ length: 50 }, () => ({
-      left: `${Math.random() * 100}%`,
-      top: `${Math.random() * 100}%`,
-      delay: `${Math.random() * 3}s`,
-      duration: `${2 + Math.random() * 3}s`,
-    }));
-    setDots(generated);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isVideoOpen) {
+        setIsVideoOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isVideoOpen]);
+
+  const handleFeatureHover = useCallback((index: number) => {
+    setActiveFeature(index);
   }, []);
 
   return (
@@ -53,23 +68,7 @@ export default function AwesomeLandingPage() {
         }}
       />
 
-      {/* Animated particles */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden">
-        {dots.map((dot, i) => (
-          <div
-            key={i}
-            className="absolute animate-pulse"
-            style={{
-              left: dot.left,
-              top: dot.top,
-              animationDelay: dot.delay,
-              animationDuration: dot.duration,
-            }}
-          >
-            <div className="h-1 w-1 animate-ping rounded-full bg-purple-400" />
-          </div>
-        ))}
-      </div>
+
 
       {/* Navigation */}
       <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/20 backdrop-blur-xl">
@@ -96,6 +95,7 @@ export default function AwesomeLandingPage() {
             </div>
             <Link
               href={isSignedIn ? "/dashboard" : "/sign-in"}
+              prefetch={true}
               className="transform rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2 font-semibold transition-all duration-300 hover:scale-105 hover:from-purple-700 hover:to-pink-700"
             >
               Get Started
@@ -121,7 +121,6 @@ export default function AwesomeLandingPage() {
               <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text pr-2 text-transparent">
                 Create
               </span>
-              {/* <br /> */}
               <span className="animate-pulse bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 bg-clip-text text-transparent">
                 Mind-Blowing
               </span>
@@ -140,46 +139,34 @@ export default function AwesomeLandingPage() {
               </span>
             </p>
 
-            <div className="mb-16 flex flex-col items-center justify-center gap-6 sm:flex-row">
+            <div className="mb-10 flex flex-col items-center justify-center gap-6 sm:flex-row">
               <Link
                 href={isSignedIn ? "/dashboard" : "/sign-in"}
+                prefetch={true}
                 className="group transform rounded-full bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 text-lg font-bold transition-all duration-300 hover:scale-105 hover:from-purple-700 hover:to-pink-700 hover:shadow-2xl hover:shadow-purple-500/25"
               >
                 Start Creating Magic
                 <ArrowRight className="ml-2 inline-block h-5 w-5 transition-transform group-hover:translate-x-1" />
               </Link>
-              <Link
-                href={isSignedIn ? "/dashboard" : "/sign-in"}
+              <button
+                onClick={() => setIsVideoOpen(true)}
                 className="group flex items-center space-x-3 rounded-full border border-white/20 px-8 py-4 backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
               >
                 <Play className="h-5 w-5 text-purple-400" />
                 <span>Watch Demo</span>
-              </Link>
-
-            
+              </button>
             </div>
-
-          
           </div>
-        <Image
-          src={"/dashboard.png"}
-          alt="banner-image"
-          className="z-10 mt-10 rounded-2xl border border-cyan-800/20 shadow-xl md:shadow-2xl"
-          width={1200}
-          height={598}
-        />
-        </div>
-
-        {/* Floating Elements */}
-        <div className="animation-delay-1000 absolute left-10 top-1/4 animate-bounce">
-          <div className="flex h-16 w-16 rotate-12 transform items-center justify-center rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500">
-            <Sparkles className="h-8 w-8" />
-          </div>
-        </div>
-        <div className="animation-delay-2000 absolute right-10 top-1/3 animate-bounce">
-          <div className="flex h-12 w-12 -rotate-12 transform items-center justify-center rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500">
-            <Wand2 className="h-6 w-6" />
-          </div>
+          <Image
+            src={"/dashboard.png"}
+            alt="Dashboard preview showing AI content generation interface"
+            className="z-10 mt-10 rounded-2xl border border-cyan-800/20 shadow-xl md:shadow-2xl"
+            width={1200}
+            height={598}
+            priority
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mN8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+          />
         </div>
       </section>
 
@@ -203,10 +190,11 @@ export default function AwesomeLandingPage() {
               <Link
                 key={i}
                 href={template.link || "/dashboard"}
+                prefetch={true}
                 className={`group relative transform cursor-pointer overflow-hidden rounded-3xl border border-white/10 p-8 backdrop-blur-sm transition-all duration-500 hover:scale-105 hover:border-white/20 ${
                   activeFeature === i ? "scale-105 border-purple-500/50" : ""
                 }`}
-                onMouseEnter={() => setActiveFeature(i)}
+                onMouseEnter={() => handleFeatureHover(i)}
               >
                 <div
                   className={`absolute inset-0 bg-gradient-to-br ${template.color} opacity-10 transition-opacity duration-500 group-hover:opacity-20`}
@@ -285,18 +273,15 @@ export default function AwesomeLandingPage() {
                 markets with AI-powered content
               </p>
 
-              <div className="mx-auto flex max-w-md flex-col justify-center gap-4 sm:flex-row">
-                <input
-                  type="email"
-                  placeholder="Enter your email"
-                  className="flex-1 rounded-2xl border border-white/20 bg-white/10 px-6 py-4 text-white placeholder-gray-400 backdrop-blur-sm transition-colors focus:border-purple-500 focus:outline-none"
-                />
-                <button className="transform whitespace-nowrap rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-4 font-bold transition-all duration-300 hover:scale-105 hover:from-purple-700 hover:to-pink-700">
-                  Start Free →
-                </button>
-              </div>
+              <Link
+                href={isSignedIn ? "/dashboard" : "/sign-in"}
+                prefetch={true}
+                className="inline-block transform rounded-2xl bg-gradient-to-r from-purple-600 to-pink-600 px-12 py-4 text-lg font-bold transition-all duration-300 hover:scale-105 hover:from-purple-700 hover:to-pink-700"
+              >
+                Start Free →
+              </Link>
 
-              <p className="mt-4 text-sm text-gray-400">
+              <p className="mt-6 text-sm text-gray-400">
                 ✨ No credit card required • 🚀 7-day free trial • 💯 Cancel
                 anytime
               </p>
@@ -338,6 +323,52 @@ export default function AwesomeLandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Video Popup Modal */}
+      {isVideoOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl animate-in fade-in duration-300"
+          onClick={() => setIsVideoOpen(false)}
+        >
+          <div
+            className="relative w-full max-w-3xl px-4 animate-in zoom-in-95 duration-500"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setIsVideoOpen(false)}
+              className="absolute -top-14 right-4 z-10 group rounded-full bg-gradient-to-br from-purple-600/20 to-pink-600/20 p-3 backdrop-blur-md border border-white/20 transition-all duration-300 hover:scale-110 hover:from-purple-600/30 hover:to-pink-600/30 hover:border-white/40 hover:shadow-lg hover:shadow-purple-500/50"
+              aria-label="Close video"
+            >
+              <X className="h-6 w-6 text-white transition-transform group-hover:rotate-90" />
+            </button>
+
+            {/* Video Container with gradient border */}
+            <div className="relative p-1 rounded-3xl bg-gradient-to-br from-purple-600 via-pink-600 to-indigo-600 shadow-2xl shadow-purple-500/30">
+              <div className="relative overflow-hidden rounded-[1.25rem] bg-black">
+                {/* Glow effect */}
+                <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 opacity-20 blur-xl" />
+
+                {/* Video with 16:9 aspect ratio */}
+                <div className="relative" style={{ paddingBottom: "56.25%" }}>
+                  <iframe
+                    className="absolute inset-0 h-full w-full rounded-[1.25rem]"
+                    src={`https://www.youtube.com/embed/${youtubeVideoId}?autoplay=1&mute=0&rel=0&modestbranding=1`}
+                    title="Demo Video"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Instruction text */}
+            <p className="mt-6 text-center text-sm text-gray-400 animate-in slide-in-from-bottom-4 duration-700">
+              Press <kbd className="px-2 py-1 text-xs font-semibold text-white bg-white/10 border border-white/20 rounded">ESC</kbd> or click outside to close
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
