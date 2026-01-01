@@ -10,8 +10,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex h-full overflow-y-hidden md:h-screen">
-      <SideNav  />
+    <div className="flex h-full overflow-y-hidden bg-gray-200 dark:bg-gray-900 md:h-screen">
+      <SideNav />
       <div className="flex flex-1 flex-col">
         <HeaderNav />
         <div className="overflow-y-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

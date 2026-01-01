@@ -113,11 +113,15 @@ export function FormSection({
             </div>
           ))}
 
-          <Button type="submit" variant={"bgColor"} className="mt-2 w-full">
+          <Button
+            type="submit"
+            variant={"bgColor"}
+            className="mt-2 w-full py-6 text-lg"
+          >
             {loading ? (
               <Loader2Icon className="animate-spin" />
             ) : (
-              "Generate Content"
+              "✨ Generate Content"
             )}
           </Button>
         </form>

@@ -10,6 +10,9 @@ import "@toast-ui/editor/dist/toastui-editor.css";
 import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 import { useTheme } from "next-themes";
 import HeaderOutSection from "./HeaderOutSection";
+import "tui-color-picker/dist/tui-color-picker.css";
+import "@toast-ui/editor-plugin-color-syntax/dist/toastui-editor-plugin-color-syntax.css";
+import colorSyntax from "@toast-ui/editor-plugin-color-syntax";
 
 interface OutputSectionProps {
   aiOutput: string;
@@ -47,25 +50,6 @@ export const OutputSection: React.FC<OutputSectionProps> = ({ aiOutput }) => {
   // 🧠 Re-render the Editor only when the theme changes
   const currentTheme = mounted && theme === "dark" ? "dark" : "light";
 
-  const copyToClipboard = () => {
-    if (editorRef.current) {
-      const content = editorRef.current.getInstance().getMarkdown();
-      if (content) {
-        navigator.clipboard.writeText(content).then(
-          () => {
-            toast({
-              variant: "destructive",
-              title: "Content copied to clipboard!",
-            });
-          },
-          () => {
-            toast({ title: "Failed to copy" });
-          },
-        );
-      }
-    }
-  };
-
   // Prevents hydration mismatch
   if (!mounted) {
     return null;
@@ -85,6 +69,7 @@ export const OutputSection: React.FC<OutputSectionProps> = ({ aiOutput }) => {
           theme={currentTheme}
           useCommandShortcut={true}
           onChange={handleEditorChange}
+          plugins={[colorSyntax]}
         />
       </div>
     </div>

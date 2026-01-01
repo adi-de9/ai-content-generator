@@ -1,16 +1,28 @@
 "use client";
-import { useState, useEffect, useMemo, useCallback } from "react";
-import { Sparkles, ArrowRight, Play, Wand2, Rocket, X } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Sparkles, ArrowRight, Play, Rocket, X } from "lucide-react";
 import { templates, features } from "@/utils/landingPageConstant";
 import Link from "next/link";
 import { useAuth } from "@clerk/nextjs";
 import Image from "next/image";
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+// Register GSAP plugins
+gsap.registerPlugin(ScrollTrigger);
 
 export default function AwesomeLandingPage() {
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isVisible, setIsVisible] = useState(false);
   const [activeFeature, setActiveFeature] = useState(0);
   const [isVideoOpen, setIsVideoOpen] = useState(false);
+  
+  // GSAP refs
+  const heroRef = useRef<HTMLDivElement>(null);
+  const templatesRef = useRef<HTMLDivElement>(null);
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const { isSignedIn } = useAuth();
 
   // YouTube video ID - 9:16 vertical video
@@ -19,26 +31,13 @@ export default function AwesomeLandingPage() {
   useEffect(() => {
     setIsVisible(true);
 
-    // Throttle mouse tracking to reduce re-renders
-    let timeoutId: NodeJS.Timeout;
-    const handleMouseMove = (e: MouseEvent) => {
-      if (timeoutId) return;
-      timeoutId = setTimeout(() => {
-        setMousePosition({ x: e.clientX, y: e.clientY });
-        timeoutId = null as any;
-      }, 50); // Update every 50ms max
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-
     // Cycle through features
     const interval = setInterval(() => {
       setActiveFeature((prev) => (prev + 1) % 6);
     }, 3000);
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
       clearInterval(interval);
-      if (timeoutId) clearTimeout(timeoutId);
     };
   }, []);
 
@@ -58,20 +57,139 @@ export default function AwesomeLandingPage() {
     setActiveFeature(index);
   }, []);
 
+  // GSAP Animations
+  useGSAP(() => {
+    const ctx = gsap.context(() => {
+
+      // Navigation animation
+      gsap.to(navRef.current, {
+        y: 0,
+        opacity: 1,
+        duration: 1,
+        ease: "power3.out",
+        delay: 0.1,
+        clearProps: "all",
+      });
+
+      // Hero section animations
+      if (heroRef.current) {
+        const heroElements = heroRef.current.querySelectorAll(".hero-content > *");
+        gsap.to(heroElements, {
+          y: 0,
+          opacity: 1,
+          duration: 1.2,
+          stagger: 0.15,
+          ease: "power3.out",
+          delay: 0.3,
+          clearProps: "all",
+        });
+
+        // Dashboard image animation
+        gsap.to(".dashboard-image", {
+          y: 0,
+          opacity: 1,
+          scale: 1,
+          duration: 1.5,
+          ease: "power3.out",
+          clearProps: "all",
+          scrollTrigger: {
+            trigger: ".dashboard-image",
+            start: "top 90%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      }
+
+      // Templates section animations
+      if (templatesRef.current) {
+        const templateCards = templatesRef.current.querySelectorAll(".template-card");
+        gsap.to(templateCards, {
+          y: 0,
+          opacity: 1,
+          duration: 0.8,
+          stagger: 0.1,
+          ease: "power2.out",
+          clearProps: "all",
+          scrollTrigger: {
+            trigger: templatesRef.current,
+            start: "top 70%",
+            toggleActions: "play none none reverse",
+          },
+        });
+
+        // Section title animation
+        gsap.to(templatesRef.current.querySelector(".section-title"), {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          ease: "power3.out",
+          clearProps: "all",
+          scrollTrigger: {
+            trigger: templatesRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      }
+
+      // Features section animations
+      if (featuresRef.current) {
+        const featureItems = featuresRef.current.querySelectorAll(".feature-item");
+        gsap.to(featureItems, {
+          y: 0,
+          opacity: 1,
+          duration: 0.9,
+          stagger: 0.2,
+          ease: "power2.out",
+          clearProps: "all",
+          scrollTrigger: {
+            trigger: featuresRef.current,
+            start: "top 70%",
+            toggleActions: "play none none reverse",
+          },
+        });
+
+        // Section title animation
+        gsap.to(featuresRef.current.querySelector(".section-title"), {
+          y: 0,
+          opacity: 1,
+          duration: 1,
+          ease: "power3.out",
+          clearProps: "all",
+          scrollTrigger: {
+            trigger: featuresRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      }
+
+      // CTA section animations
+      if (ctaRef.current) {
+        gsap.to(ctaRef.current.querySelector(".cta-content"), {
+          scale: 1,
+          opacity: 1,
+          duration: 1,
+          ease: "back.out(1.7)",
+          clearProps: "all",
+          scrollTrigger: {
+            trigger: ctaRef.current,
+            start: "top 75%",
+            toggleActions: "play none none reverse",
+          },
+        });
+      }
+    });
+
+    return () => ctx.revert(); // Cleanup
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-black text-white">
       <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-pink-900/20 to-indigo-900/20" />
-      <div
-        className="fixed inset-0 opacity-30"
-        style={{
-          background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(147, 51, 234, 0.15), transparent 40%)`,
-        }}
-      />
-
-
 
       {/* Navigation */}
-      <nav className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/20 backdrop-blur-xl">
+      <nav ref={navRef} style={{ opacity: 0, transform: 'translateY(-100px)' }} className="fixed top-0 z-50 w-full border-b border-white/10 bg-black/20 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-6 py-4">
           <div className="flex items-center justify-between">
             <Link href={"/"} className="flex items-center space-x-2">
@@ -105,19 +223,17 @@ export default function AwesomeLandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative flex min-h-screen items-center justify-center pt-20">
+      <section ref={heroRef} className="relative flex min-h-screen items-center justify-center pt-20">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <div
-            className={`duration-1500 transform transition-all ${isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0"}`}
-          >
-            <div className="mb-8 inline-flex items-center rounded-full border border-purple-500/30 bg-gradient-to-r from-purple-600/20 to-pink-600/20 px-6 py-3 backdrop-blur-sm">
+          <div className="hero-content">
+            <div className="mb-8 inline-flex items-center rounded-full border border-purple-500/30 bg-gradient-to-r from-purple-600/20 to-pink-600/20 px-6 py-3 backdrop-blur-sm" style={{ opacity: 0, transform: 'translateY(80px)' }}>
               <Rocket className="mr-2 h-5 w-5 text-purple-400" />
               <span className="text-sm font-medium">
                 🚀 Now with Gemini-2.5 Turbo Technology
               </span>
             </div>
 
-            <h1 className="mb-8 text-6xl font-black leading-tight md:text-8xl">
+            <h1 className="mb-8 text-6xl font-black leading-tight md:text-8xl" style={{ opacity: 0, transform: 'translateY(80px)' }}>
               <span className="bg-gradient-to-r from-white via-purple-200 to-pink-200 bg-clip-text pr-2 text-transparent">
                 Create
               </span>
@@ -130,7 +246,7 @@ export default function AwesomeLandingPage() {
               </span>
             </h1>
 
-            <p className="mx-auto mb-12 max-w-3xl text-xl leading-relaxed text-gray-300 md:text-2xl">
+            <p className="mx-auto mb-12 max-w-3xl text-xl leading-relaxed text-gray-300 md:text-2xl" style={{ opacity: 0, transform: 'translateY(80px)' }}>
               Transform your ideas into viral content with our revolutionary AI
               engine.
               <span className="font-semibold text-purple-400">
@@ -139,7 +255,7 @@ export default function AwesomeLandingPage() {
               </span>
             </p>
 
-            <div className="mb-10 flex flex-col items-center justify-center gap-6 sm:flex-row">
+            <div className="mb-10 flex flex-col items-center justify-center gap-6 sm:flex-row" style={{ opacity: 0, transform: 'translateY(80px)' }}>
               <Link
                 href={isSignedIn ? "/dashboard" : "/sign-in"}
                 prefetch={true}
@@ -160,7 +276,8 @@ export default function AwesomeLandingPage() {
           <Image
             src={"/dashboard.png"}
             alt="Dashboard preview showing AI content generation interface"
-            className="z-10 mt-10 rounded-2xl border border-cyan-800/20 shadow-xl md:shadow-2xl"
+            className="dashboard-image z-10 mt-10 rounded-2xl border border-cyan-800/20 shadow-xl md:shadow-2xl"
+            style={{ opacity: 0, transform: 'translateY(100px) scale(0.9)' }}
             width={1200}
             height={598}
             priority
@@ -171,9 +288,9 @@ export default function AwesomeLandingPage() {
       </section>
 
       {/* Templates Section */}
-      <section id="templates" className="relative py-32">
+      <section ref={templatesRef} id="templates" className="relative py-32">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-20 text-center">
+          <div className="section-title mb-20 text-center" style={{ opacity: 0, transform: 'translateY(50px)' }}>
             <h2 className="mb-6 text-5xl font-bold md:text-6xl">
               <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Content Templates
@@ -191,7 +308,8 @@ export default function AwesomeLandingPage() {
                 key={i}
                 href={template.link || "/dashboard"}
                 prefetch={true}
-                className={`group relative transform cursor-pointer overflow-hidden rounded-3xl border border-white/10 p-8 backdrop-blur-sm transition-all duration-500 hover:scale-105 hover:border-white/20 ${
+                style={{ opacity: 0, transform: 'translateY(60px)' }}
+                className={`template-card group relative transform cursor-pointer overflow-hidden rounded-3xl border border-white/10 p-8 backdrop-blur-sm transition-all duration-500 hover:scale-105 hover:border-white/20 ${
                   activeFeature === i ? "scale-105 border-purple-500/50" : ""
                 }`}
                 onMouseEnter={() => handleFeatureHover(i)}
@@ -223,9 +341,9 @@ export default function AwesomeLandingPage() {
       </section>
 
       {/* Features Section */}
-      <section id="whychooseus" className="relative py-32">
+      <section ref={featuresRef} id="whychooseus" className="relative py-32">
         <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-20 text-center">
+          <div className="section-title mb-20 text-center" style={{ opacity: 0, transform: 'translateY(50px)' }}>
             <h2 className="mb-6 text-5xl font-bold md:text-6xl">
               <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
                 Why Choose Us?
@@ -239,7 +357,7 @@ export default function AwesomeLandingPage() {
 
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-3">
             {features.map((feature, i) => (
-              <div key={i} className="group text-center">
+              <div key={i} className="feature-item group text-center" style={{ opacity: 0, transform: 'translateY(60px)' }}>
                 <div
                   className={`mx-auto mb-8 h-24 w-24 bg-gradient-to-br ${feature.gradient} flex items-center justify-center rounded-3xl transition-all duration-500 group-hover:rotate-6 group-hover:scale-110`}
                 >
@@ -258,9 +376,9 @@ export default function AwesomeLandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="relative py-32">
+      <section ref={ctaRef} className="relative py-32">
         <div className="mx-auto max-w-4xl px-6 text-center">
-          <div className="relative overflow-hidden rounded-3xl border border-white/20 p-16 backdrop-blur-sm">
+          <div className="cta-content relative overflow-hidden rounded-3xl border border-white/20 p-16 backdrop-blur-sm" style={{ opacity: 0, transform: 'scale(0.9)' }}>
             <div className="absolute inset-0 bg-gradient-to-br from-purple-900/30 to-pink-900/30" />
             <div className="relative z-10">
               <h2 className="mb-8 text-5xl font-bold md:text-6xl">
@@ -327,24 +445,24 @@ export default function AwesomeLandingPage() {
       {/* Video Popup Modal */}
       {isVideoOpen && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl animate-in fade-in duration-300"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 backdrop-blur-xl duration-300 animate-in fade-in"
           onClick={() => setIsVideoOpen(false)}
         >
           <div
-            className="relative w-full max-w-3xl px-4 animate-in zoom-in-95 duration-500"
+            className="relative w-full max-w-3xl px-4 duration-500 animate-in zoom-in-95"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close Button */}
             <button
               onClick={() => setIsVideoOpen(false)}
-              className="absolute -top-14 right-4 z-10 group rounded-full bg-gradient-to-br from-purple-600/20 to-pink-600/20 p-3 backdrop-blur-md border border-white/20 transition-all duration-300 hover:scale-110 hover:from-purple-600/30 hover:to-pink-600/30 hover:border-white/40 hover:shadow-lg hover:shadow-purple-500/50"
+              className="group absolute -top-14 right-4 z-10 rounded-full border border-white/20 bg-gradient-to-br from-purple-600/20 to-pink-600/20 p-3 backdrop-blur-md transition-all duration-300 hover:scale-110 hover:border-white/40 hover:from-purple-600/30 hover:to-pink-600/30 hover:shadow-lg hover:shadow-purple-500/50"
               aria-label="Close video"
             >
               <X className="h-6 w-6 text-white transition-transform group-hover:rotate-90" />
             </button>
 
             {/* Video Container with gradient border */}
-            <div className="relative p-1 rounded-3xl bg-gradient-to-br from-purple-600 via-pink-600 to-indigo-600 shadow-2xl shadow-purple-500/30">
+            <div className="relative rounded-3xl bg-gradient-to-br from-purple-600 via-pink-600 to-indigo-600 p-1 shadow-2xl shadow-purple-500/30">
               <div className="relative overflow-hidden rounded-[1.25rem] bg-black">
                 {/* Glow effect */}
                 <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 opacity-20 blur-xl" />
@@ -363,8 +481,12 @@ export default function AwesomeLandingPage() {
             </div>
 
             {/* Instruction text */}
-            <p className="mt-6 text-center text-sm text-gray-400 animate-in slide-in-from-bottom-4 duration-700">
-              Press <kbd className="px-2 py-1 text-xs font-semibold text-white bg-white/10 border border-white/20 rounded">ESC</kbd> or click outside to close
+            <p className="mt-6 text-center text-sm text-gray-400 duration-700 animate-in slide-in-from-bottom-4">
+              Press{" "}
+              <kbd className="rounded border border-white/20 bg-white/10 px-2 py-1 text-xs font-semibold text-white">
+                ESC
+              </kbd>{" "}
+              or click outside to close
             </p>
           </div>
         </div>

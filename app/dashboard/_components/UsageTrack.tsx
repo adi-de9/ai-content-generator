@@ -11,20 +11,25 @@ const UsageTrack: React.FC = () => {
   const { data, loading, error, userSubscriptionDetails } = useAppSelector(
     (state: RootState) => state?.user,
   );
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (!user?.primaryEmailAddress?.emailAddress) return;
 
     if (!data.length) {
-      fetchHistoryData({
-        userEmail: user?.primaryEmailAddress?.emailAddress,
-        page: 1,
-        limit: 10,
-      });
+      dispatch(
+        fetchHistoryData({
+          userEmail: user?.primaryEmailAddress?.emailAddress,
+          page: 1,
+          limit: 10,
+        }),
+      );
     }
 
     if (!userSubscriptionDetails?.length) {
-      fetchUserSubscriptionData(user?.primaryEmailAddress?.emailAddress);
+      dispatch(
+        fetchUserSubscriptionData(user?.primaryEmailAddress?.emailAddress),
+      );
     }
   }, [user?.primaryEmailAddress?.emailAddress]);
 
