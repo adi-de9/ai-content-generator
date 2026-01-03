@@ -64,9 +64,15 @@ export const fetchHistoryData = createAsyncThunk(
         .from(AIResponse)
         .where(eq(AIResponse.createdBy, userEmail));
 
+      const [{ totalUsage }] = await db
+        .select({ totalUsage: sql<number>`sum(array_length(regexp_split_to_array(${AIResponse.aiResponse}, '\\s+'), 1))` })
+        .from(AIResponse)
+        .where(eq(AIResponse.createdBy, userEmail));
+
       return {
         results,
         total: count,
+        totalUsage: totalUsage,
       };
     } catch (error) {
       console.log(error);
@@ -114,6 +120,9 @@ const userSlice = createSlice({
       state.totalHistoryText = action.payload;
     },
     calculateTotalHistory(state, action: PayloadAction<HISTORY[]>) {
+      // This reducer might be deprecated if we move to server-side calc, 
+      // but keeping it for now if used elsewhere. 
+      // Ideally we shouldn't use it to overwrite true server totals.
       state.totalHistoryText = calculateTotal(action.payload);
     },
   },
@@ -126,8 +135,10 @@ const userSlice = createSlice({
       .addCase(fetchHistoryData.fulfilled, (state, action) => {
         state.data = action.payload.results;
         state.loading = false;
-        state.totalHistoryNo = action.payload.results.length;
-        state.totalHistoryText = calculateTotal(action.payload.results);
+        // Update totals based on server response (GLOBAL totals)
+        state.totalHistoryNo = action.payload.total; 
+        state.totalHistoryText = action.payload.totalUsage || 0;
+        state.total = action.payload.total;
       })
       .addCase(fetchHistoryData.rejected, (state, action) => {
         state.loading = false;

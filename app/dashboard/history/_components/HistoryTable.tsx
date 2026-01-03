@@ -51,9 +51,9 @@ function HistoryTable() {
     return;
   }, [user?.primaryEmailAddress?.emailAddress, page]);
 
-  useEffect(() => {
-    dispatch(calculateTotalHistory(data));
-  }, [data, dispatch]);
+  // useEffect(() => {
+  //   dispatch(calculateTotalHistory(data));
+  // }, [data, dispatch]);
 
   if (loading) return <Loading />;
 
@@ -78,7 +78,7 @@ function HistoryTable() {
                   Date
                 </TableHead>
                 <TableHead className="whitespace-nowrap font-semibold">
-                  Words
+                  Words Count
                 </TableHead>
                 <TableHead className="whitespace-nowrap font-semibold">
                   Copy
@@ -101,7 +101,7 @@ function HistoryTable() {
                     {item?.createdAt}
                   </TableCell>
                   <TableCell className="text-center text-sm">
-                    {item?.aiResponse?.length}
+                    {item?.aiResponse?.trim().split(/\s+/).length || 0}
                   </TableCell>
                   <TableCell>
                     <Button variant="bgColor" size="sm">

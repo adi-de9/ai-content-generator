@@ -94,8 +94,8 @@ export default function AwesomeLandingPage() {
           clearProps: "all",
           scrollTrigger: {
             trigger: ".dashboard-image",
-            start: "top 90%",
-            toggleActions: "play none none reverse",
+            start: "top 100%",
+            toggleActions: "play none none",
           },
         });
       }

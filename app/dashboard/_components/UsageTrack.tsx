@@ -4,11 +4,13 @@ import { fetchUserSubscriptionData, fetchHistoryData } from "@/redux/userSlice";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@clerk/nextjs";
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 
 const UsageTrack: React.FC = () => {
   const { user } = useUser();
-  const { data, loading, error, userSubscriptionDetails } = useAppSelector(
+  const { data, loading, error, userSubscriptionDetails, totalHistoryText } = useAppSelector(
     (state: RootState) => state?.user,
   );
   const dispatch = useAppDispatch();
@@ -33,14 +35,7 @@ const UsageTrack: React.FC = () => {
     }
   }, [user?.primaryEmailAddress?.emailAddress]);
 
-  const getTotalUsage = useMemo(() => {
-    return data.reduce(
-      (total, element) => total + (element?.aiResponse?.length || 0),
-      0,
-    );
-  }, [data]);
-
-  const currentCredit = getTotalUsage || 0;
+  const currentCredit = totalHistoryText || 0;
   const maxCredit = useMemo(
     () =>
       userSubscriptionDetails && userSubscriptionDetails[0]?.active
@@ -54,49 +49,91 @@ const UsageTrack: React.FC = () => {
     [currentCredit, maxCredit],
   );
 
+  // GSAP animation ref
+  const progressBarRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Animate progress bar when creditPercentage changes
+  useEffect(() => {
+    if (progressBarRef.current) {
+      gsap.to(progressBarRef.current, {
+        width: `${Math.min(creditPercentage || 0, 100)}%`,
+        duration: 1.2,
+        ease: "power2.out",
+      });
+    }
+  }, [creditPercentage]);
+
   if (error) {
     return <div>Error: {error}</div>;
   }
 
+  // Format number with commas
+  const formatNumber = (num: number) => {
+    return num.toLocaleString();
+  };
+
   return (
-    <div className="mx-4 mb-6 mt-auto">
-      <div className="color rounded-lg">
-        <div className="p-2 pt-0 md:p-4">
-          <div className="text-white">Credits</div>
-          <div className="mt-4 h-2 w-full rounded-full bg-pink-400">
-            <div
-              className="h-2 rounded-full bg-white"
-              style={{ width: `${creditPercentage || 0}%`, maxWidth: "100%" }}
-            ></div>
-          </div>
-          <div className="mt-2 line-clamp-1 flex gap-1 text-sm font-light text-white">
-            <span
-              className={
-                currentCredit < 10000 ? "text-white" : "font-bold text-black"
-              }
-            >
-              {loading ? "..." : currentCredit}
+    <div className="mx-4 mb-6 mt-auto" ref={containerRef}>
+      <div 
+        className="rounded-2xl p-5 bg-pink-600"
+
+      >
+        {/* Credits Title */}
+        <h3 className="text-2xl font-bold text-white mb-3">Credits</h3>
+        
+        {/* Credits Info Row */}
+        <div className="flex justify-between items-center mb-2">
+          <div className="text-white">
+            <span className="text-xs font-semibold">
+              {loading && (!userSubscriptionDetails || userSubscriptionDetails.length === 0) && data?.length === 0 ? "..." : formatNumber(currentCredit)}
             </span>
-            /
-            {userSubscriptionDetails && userSubscriptionDetails[0]?.active
-              ? "10,00,000"
-              : "10,000"}{" "}
-            Credit Used
+            <span className="text-white/80 ml-1 text-xs">Words Used</span>
+          </div>
+          <div className="text-white">
+            <span className="text-xs font-semibold">
+              {formatNumber(maxCredit)}
+            </span>
+            <span className="text-white/80 ml-1 text-xs">Total</span>
           </div>
         </div>
+
+        {/* Progress Bar */}
+        <div className="h-3 w-full rounded-full bg-white/90 overflow-hidden">
+          <div
+            ref={progressBarRef}
+            className="h-full rounded-full bg-green-500"
+            style={{ 
+              width: "0%",
+            }}
+          ></div>
+        </div>
+
+        {/* Renewal Text */}
+        <p className="text-white/90 mt-4 text-sm font-medium">
+          {userSubscriptionDetails && userSubscriptionDetails[0]?.active 
+            ? "Pro Plan Active" 
+            : "Renews monthly"}
+        </p>
       </div>
-      <div className="mt-2 w-full p-1">
+
+      {/* Upgrade Button */}
+      <div className="mt-3 w-full">
         {userSubscriptionDetails && userSubscriptionDetails[0]?.active ? (
           <Button
             disabled={true}
             size="sm"
             variant="default"
-            className="w-full"
+            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-semibold"
           >
-            Pro User
+            ✨ Pro User
           </Button>
         ) : (
-          <Button size="sm" variant="default" className="w-full">
+          <Button 
+            size="sm" 
+            variant="default" 
+            className="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white font-semibold"
+          >
             Upgrade
           </Button>
         )}

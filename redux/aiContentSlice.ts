@@ -38,15 +38,18 @@ export const generateAiContent = createAsyncThunk(
           createdAt: moment().format("YYYY-MM-DD"),
         });
 
-        const updatedHistory = await dispatch(
-          fetchHistoryData(userEmail),
-        ).unwrap();
-
-        const totalHistoryText = updatedHistory.results.reduce(
-          (acc, e) => acc + (e.aiResponse?.length || 0),
-          0,
+        await dispatch(
+          fetchHistoryData({
+            userEmail,
+            page: 1,
+            limit: 10,
+          }),
         );
-        dispatch(setTotalHistoryText(totalHistoryText));
+        
+        // Removed manual calculation as fetchHistoryData now updates state correctly
+        // const updatedHistory = ...
+        // const totalHistoryText = ...
+        // dispatch(setTotalHistoryText(totalHistoryText));
 
         return aiResponse;
       }
