@@ -46,7 +46,7 @@
     "lucide-react": "^0.414.0",
     "markdown-it": "^14.1.0",
     "moment": "^2.30.1",
-    "next": "^15.5.4",
+    "next": "15.5.9",
     "next-themes": "^0.3.0",
     "puppeteer-core": "^24.26.1",
     "razorpay": "^2.9.4",
